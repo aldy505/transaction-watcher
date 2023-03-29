@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:15-bullseye
+    ports:
+      - 5432:5432
+    restart: on-failure:10
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: watcher
+      POSTGRES_DB: watcher
+    healthcheck:
+      test: "pg_isready -U watcher -d watcher"
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  kafka:
+    image: docker.redpanda.com/vectorized/redpanda:v22.2.2
+    restart: on-failure:10
+    ports:
+      - 9092:9092
+    command:
+      - redpanda start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --node-id 0
+      - --check=false
+      - --pandaproxy-addr PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+      - --advertise-pandaproxy-addr PLAINTEXT://kafka:8082,OUTSIDE://localhost:8082
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://kafka:29092,OUTSIDE://localhost:9092
+      - --rpc-addr 0.0.0.0:33145
+      - --advertise-rpc-addr kafka:33145
+    healthcheck:
+      test: [ "CMD", "rpk", "cluster", "health" ]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+
+  # This is for vieweing the Kafka topics and the contents within it.
+  # If you're like me, you don't really need this bit, just do unit test like usual.
+  # If it's works, that it'll work.
+  kafka-console:
+    image: docker.redpanda.com/vectorized/console:latest
+    environment:
+      KAFKA_BROKERS: kafka:29092
+    ports:
+      - 8080:8080
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  inserter:
+    build: ./inserter
+    environment:
+      DATABASE_URL: "postgresql://watcher:password@postgres:5432/watcher?sslmode=disable"
+    restart: on-failure:5
+    depends_on:
+      postgres:
+        condition: service_healthy
