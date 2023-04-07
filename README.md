@@ -10,6 +10,7 @@ This project contains a few tasks for you to work with.
 
 Create a subdirectory called `watcher` that will do a SQL query periodically to the `transactions` table, 
 and for every new row on that table, the `watcher` will produce a message to `transactions` topic on Redpanda.
+You will also need to create the `transactions` topic yourself.
 
 The schema of the message is defined on the `kafka-schemas` directory. Search for `transaction.json` file.
 

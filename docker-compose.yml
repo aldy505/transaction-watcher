@@ -31,9 +31,9 @@ services:
       - --node-id 0
       - --check=false
       - --pandaproxy-addr PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
-      - --advertise-pandaproxy-addr PLAINTEXT://kafka:8082,OUTSIDE://localhost:8082
+      - --advertise-pandaproxy-addr PLAINTEXT://kafka:8082,OUTSIDE://kafka:8082
       - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
-      - --advertise-kafka-addr PLAINTEXT://kafka:29092,OUTSIDE://localhost:9092
+      - --advertise-kafka-addr PLAINTEXT://kafka:9092,OUTSIDE://kafka:9092
       - --rpc-addr 0.0.0.0:33145
       - --advertise-rpc-addr kafka:33145
     healthcheck:

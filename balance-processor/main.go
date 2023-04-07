@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/twmb/franz-go/pkg/kadm"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/twmb/franz-go/pkg/kversion"
 	"log"
@@ -12,15 +13,18 @@ import (
 )
 
 func main() {
-	kafkaHost, ok := os.LookupEnv("KAFKA_HOST")
+	kafkaHost, ok := os.LookupEnv("KAFKA_ADDRESSES")
 	if !ok {
 		kafkaHost = "localhost:9092"
 	}
 
 	kafkaOptions := []kgo.Opt{
 		kgo.MinVersions(kversion.V0_11_0()),
-		kgo.SeedBrokers(strings.Split(kafkaHost, ",")...),
+		kgo.SeedBrokers(kafkaHost),
 		kgo.ConsumeTopics("transactions"),
+		kgo.AllowAutoTopicCreation(),
+		kgo.WithLogger(kgo.BasicLogger(os.Stdout, kgo.LogLevelWarn, nil)),
+		kgo.ClientID("balance-processor"),
 	}
 
 	kafkaClient, err := kgo.NewClient(kafkaOptions...)
@@ -28,6 +32,15 @@ func main() {
 		log.Fatalf("initiating kafka client: %s", err.Error())
 	}
 	defer kafkaClient.Close()
+
+	// Create balance topic
+	kafkaAdmin := kadm.NewClient(kafkaClient)
+	_, err = kafkaAdmin.CreateTopic(context.Background(), 1, 1, nil, "balance")
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
+		kafkaClient.Close()
+
+		log.Fatalf("Creating 'balance' topic: %s", err.Error())
+	}
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, os.Interrupt)
