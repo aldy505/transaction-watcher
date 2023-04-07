@@ -1,0 +1,7 @@
+{
+  "transaction_id": 123456,
+  "transaction_type": "STRING",
+  "customer_number": 123456,
+  "transaction_amount": 123456,
+  "timestamp": "RFC3339 or ISO8601 FORMAT"
+}

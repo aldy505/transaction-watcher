@@ -14,6 +14,8 @@ services:
       timeout: 10s
       retries: 10
       start_period: 30s
+    volumes:
+      - ./postgresql:/docker-entrypoint-initdb.d:ro
 
   kafka:
     image: docker.redpanda.com/vectorized/redpanda:v22.2.2
@@ -41,7 +43,7 @@ services:
       retries: 3
       start_period: 60s
 
-  # This is for vieweing the Kafka topics and the contents within it.
+  # This is for viewing the Kafka topics and the contents within it.
   # If you're like me, you don't really need this bit, just do unit test like usual.
   # If it's works, that it'll work.
   kafka-console:
@@ -62,3 +64,47 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  balance-processor:
+    build: ./balance-processor
+    environment:
+      KAFKA_ADDRESSES: "kafka:9092"
+    restart: on-failure:5
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  customer-list:
+    build: ./customer-list
+    ports:
+      - 7201:7201
+    environment:
+      DATABASE_URL: "postgresql://watcher:password@postgres:5432/watcher?sslmode=disable"
+    restart: on-failure:5
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # This is your space now.
+  # If you are developing the application, you can comment these out.
+  watcher:
+    build: ./watcher
+    environment:
+      DATABASE_URL: "postgresql://watcher:password@postgres:5432/watcher?sslmode=disable"
+      KAFKA_ADDRESSES: "kafka:9092"
+    restart: on-failure:5
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  swimmer:
+    build: ./swimmer
+    environment:
+      KAFKA_ADDRESSES: "kafka:9092"
+    restart: on-failure:5
+    depends_on:
+      kafka:
+        condition: service_healthy
+
