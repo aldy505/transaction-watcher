@@ -98,6 +98,28 @@ into `localhost`.
 You can create a Dockerfile and add a new service schema on `docker-compose.yml` file to state your frontend container
 configuration.
 
+## How do I know if I did it?
+
+Easy, run the Docker Compose. Build everything. See the frontend if it works. See the Redpanda Console if you
+published and consume your topics and messages flawlessly.
+
+```bash
+docker compose up -d
+```
+
+To stop it, use
+
+```bash
+docker compose down
+```
+
+If you'd like to run just a few services for your local development purposes, for example only `postgres` and `kafka`
+services, you can specify it on the `up` command, like so:
+
+```bash
+docker compose up -d postgres kafka
+```
+
 ## Words of affirmation
 
 Good luck, you can do it!
