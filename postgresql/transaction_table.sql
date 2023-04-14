@@ -1,3 +1,5 @@
+-- DO NOT MODIFY
+
 CREATE TABLE IF NOT EXISTS transactions (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     transaction_type VARCHAR(20) NOT NULL,

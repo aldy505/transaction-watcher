@@ -1,1 +1,1 @@
-FROM stratch
+FROM scratch

@@ -2,6 +2,25 @@
 
 This is a repository to harden your SQL skill, learn Kafka (or Redpanda) and learn Docker.
 
+I work in a [stock broker](https://www.investopedia.com/terms/s/stockbroker.asp) company, yet I found one unique problem
+in which you might encounter while having to manage and account for every transaction that is done through the company.
+
+The first one being a need for something that listens to the changes on the database. Someone or some application would
+insert each customer's transaction activity to the database. Let's say it's from a legacy application in which nobody in the
+room has the guts to do any modification out of it. If you have multiple application that listens to state changes from
+the database, you will meet a problem on too many connection being opened on the database itself. Hence, you will
+probably need a message bus (or a message broker, same stuff, different wording) to spread your message to multiple people.
+
+Then, you could accumulate by using [event sourcing](https://martinfowler.com/eaaDev/EventSourcing.html) to find out
+current customer's balance. Rather than keeping a single integer field for customer's balance, you must store every transaction
+that they made, and look up to it as a source of truth. In other terms, it's also called
+[journaling](https://www.beginner-bookkeeping.com/bookkeeping-journals.html) on accounting field (on bookeeping).
+
+How do people at the stock broker (or similar financial company) built them and solve the issue? You will have to find
+it out yourself by building one.
+
+Will you eventually build the best one that's actually used on the production environment? Probably not, but it's worth a try!
+
 ## Your Tasks
 
 This project contains a few tasks for you to work with.
@@ -124,3 +143,31 @@ docker compose up -d postgres kafka
 ## Words of affirmation
 
 Good luck, you can do it!
+
+## License
+
+```
+MIT License
+
+Copyright (c) 2023 Reinaldy Rafli <aldy505@proton.me>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+See [LICENSE](,/LICENSE)
